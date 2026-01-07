@@ -22,16 +22,36 @@ export async function sendAssistantMessage(messages: AssistantMessage[]): Promis
       signal: controller.signal,
     });
 
+    if (import.meta.env.DEV) {
+      console.log('ai-assistant data', data);
+      console.log('ai-assistant error', error);
+    }
+
     if (error) {
       throw new Error(FALLBACK_ERROR);
     }
 
-    const reply = (data as { reply?: string } | null)?.reply;
-    if (!reply) {
-      throw new Error(FALLBACK_ERROR);
+    if (typeof data === 'string') {
+      return data;
     }
 
-    return reply;
+    if (data && typeof data === 'object') {
+      const response = data as { ok?: boolean; error?: string; text?: string; message?: string };
+
+      if (response.ok === false) {
+        throw new Error(response.error || 'Assistant error');
+      }
+
+      if (typeof response.text === 'string') {
+        return response.text;
+      }
+
+      if (typeof response.message === 'string') {
+        return response.message;
+      }
+    }
+
+    throw new Error('Unexpected response from assistant');
   } catch (err) {
     if (err instanceof Error && err.name === 'AbortError') {
       throw new Error(TIMEOUT_ERROR);
