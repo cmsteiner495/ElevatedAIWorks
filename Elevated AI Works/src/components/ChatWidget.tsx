@@ -1,7 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { MessageCircle, X, Send, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { supabase } from '@/integrations/supabase/client';
 
 interface Message {
   text: string;
@@ -16,6 +15,11 @@ export function ChatWidget() {
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const cannedResponses = [
+    'We specialize in AI-powered product strategy, UX, and brand systems. What are you building?',
+    'Our team can help with UI/UX, web experiences, and AI integrations. Tell me about your timeline.',
+    'We love partnering with growing teams. Want help scoping a project or estimating effort?',
+  ];
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -33,36 +37,12 @@ export function ChatWidget() {
     setInput('');
     setIsLoading(true);
 
-    try {
-      // Build conversation history for context
-      const conversationHistory = messages.map(msg => ({
-        role: msg.isUser ? 'user' : 'assistant',
-        content: msg.text,
-      }));
-      
-      // Add the new user message
-      conversationHistory.push({ role: 'user', content: userMessage });
+    const responseIndex = Math.floor(Math.random() * cannedResponses.length);
+    const assistantResponse = cannedResponses[responseIndex];
 
-      const { data, error } = await supabase.functions.invoke('ai-assistant', {
-        body: { messages: conversationHistory },
-      });
-
-      if (error) throw error;
-
-      const assistantResponse = data?.message || "I'm sorry, I couldn't process that. Please try again.";
-      setMessages((prev) => [...prev, { text: assistantResponse, isUser: false }]);
-    } catch (error) {
-      console.error('Chat error:', error);
-      setMessages((prev) => [
-        ...prev,
-        { 
-          text: "I'm having trouble connecting right now. Feel free to use the contact form to reach the team directly.", 
-          isUser: false 
-        },
-      ]);
-    } finally {
-      setIsLoading(false);
-    }
+    await new Promise((resolve) => setTimeout(resolve, 650));
+    setMessages((prev) => [...prev, { text: assistantResponse, isUser: false }]);
+    setIsLoading(false);
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {

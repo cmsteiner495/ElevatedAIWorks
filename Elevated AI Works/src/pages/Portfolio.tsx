@@ -3,7 +3,6 @@ import { Layout } from '@/components/layout/Layout';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-import { supabase } from '@/integrations/supabase/client';
 
 interface PortfolioProject {
   id: string;
@@ -19,6 +18,56 @@ interface PortfolioProject {
 }
 
 const categories = ['All', 'Branding', 'Website', 'UI/UX', 'Product'];
+const mockProjects: PortfolioProject[] = [
+  {
+    id: 'elevate-dental',
+    title: 'Elevate Dental Rebrand',
+    description: 'A refreshed identity and patient-first website experience for a growing dental practice.',
+    problem: 'The clinic needed to stand out in a crowded market while improving online appointment conversions.',
+    solution: 'We delivered a new visual system, refined messaging, and a conversion-focused website redesign.',
+    outcomes: ['32% increase in online bookings', '2x engagement on service pages', 'New brand guidelines adopted'],
+    categories: ['Branding', 'Website'],
+    image_url: 'https://images.unsplash.com/photo-1504805572947-34fad45aed93?w=800&q=80',
+    external_link: null,
+    display_order: 1,
+  },
+  {
+    id: 'pathway-saas',
+    title: 'Pathway SaaS Dashboard',
+    description: 'A user-centered product design overhaul for a B2B analytics platform.',
+    problem: 'Users struggled to find key insights quickly, leading to churn concerns.',
+    solution: 'We mapped core workflows and introduced a modular dashboard with clearer prioritization.',
+    outcomes: ['25% faster task completion', '15% reduction in support tickets', 'Improved NPS scores'],
+    categories: ['UI/UX', 'Product'],
+    image_url: 'https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?w=800&q=80',
+    external_link: null,
+    display_order: 2,
+  },
+  {
+    id: 'northwind-commerce',
+    title: 'Northwind Commerce',
+    description: 'A modern storefront experience that highlights craftsmanship and story-driven visuals.',
+    problem: 'The brand needed a premium online presence to support new product launches.',
+    solution: 'We built a storytelling-focused site with lightweight animations and curated product layouts.',
+    outcomes: ['18% lift in average order value', '40% more product page views', 'Expanded email list'],
+    categories: ['Website', 'Branding'],
+    image_url: 'https://images.unsplash.com/photo-1520607162513-77705c0f0d4a?w=800&q=80',
+    external_link: null,
+    display_order: 3,
+  },
+  {
+    id: 'lumen-mobile',
+    title: 'Lumen Mobile App',
+    description: 'A mobile experience built to help customers track wellness milestones effortlessly.',
+    problem: 'The app needed clearer onboarding and a more motivating progress view.',
+    solution: 'We redesigned onboarding flows, added quick wins, and highlighted progress trends.',
+    outcomes: ['30% higher week-one retention', '50% more daily check-ins', 'Improved app store ratings'],
+    categories: ['UI/UX', 'Product'],
+    image_url: 'https://images.unsplash.com/photo-1517433456452-f9633a875f6f?w=800&q=80',
+    external_link: null,
+    display_order: 4,
+  },
+];
 
 const Portfolio = () => {
   const [filter, setFilter] = useState('All');
@@ -27,25 +76,9 @@ const Portfolio = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchProjects();
+    setProjects(mockProjects);
+    setLoading(false);
   }, []);
-
-  const fetchProjects = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('portfolio_projects')
-        .select('*')
-        .eq('is_published', true)
-        .order('display_order', { ascending: true });
-
-      if (error) throw error;
-      setProjects(data || []);
-    } catch (error) {
-      console.error('Error fetching portfolio projects:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const filteredProjects = filter === 'All'
     ? projects
