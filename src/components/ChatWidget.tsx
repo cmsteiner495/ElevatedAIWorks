@@ -1,25 +1,70 @@
 import { useState, useRef, useEffect } from 'react';
 import { MessageCircle, X, Send, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { sendAssistantMessage } from '@/lib/aiAssistant';
+import { isSupabaseConfigured } from '@/lib/supabaseClient';
 
 interface Message {
   text: string;
   isUser: boolean;
 }
 
+interface AssistantMessage {
+  role: 'system' | 'user' | 'assistant';
+  content: string;
+}
+
+const STORAGE_KEY = 'eaw_assistant_history';
+const DEFAULT_ASSISTANT_MESSAGE: AssistantMessage = {
+  role: 'assistant',
+  content: "Hi! I'm the Elevated AI Works Assistant. How can I help you today?",
+};
+const SYSTEM_MESSAGE: AssistantMessage = {
+  role: 'system',
+  content:
+    'You are the Elevated AI Works assistant. Keep responses concise, friendly, and helpful. Answer questions about services and pricing, encourage booking a consultation, and ask clarifying questions to move projects forward.',
+};
+
+const loadHistory = (): AssistantMessage[] => {
+  if (typeof window === 'undefined') {
+    return [DEFAULT_ASSISTANT_MESSAGE];
+  }
+
+  try {
+    const stored = sessionStorage.getItem(STORAGE_KEY);
+    if (!stored) {
+      return [DEFAULT_ASSISTANT_MESSAGE];
+    }
+    const parsed = JSON.parse(stored);
+    if (!Array.isArray(parsed)) {
+      return [DEFAULT_ASSISTANT_MESSAGE];
+    }
+    const sanitized = parsed.filter(
+      (message): message is AssistantMessage =>
+        message &&
+        typeof message.content === 'string' &&
+        (message.role === 'user' || message.role === 'assistant'),
+    );
+    return sanitized.length > 0 ? sanitized : [DEFAULT_ASSISTANT_MESSAGE];
+  } catch {
+    return [DEFAULT_ASSISTANT_MESSAGE];
+  }
+};
+
 export function ChatWidget() {
   const [isOpen, setIsOpen] = useState(false);
-  const [messages, setMessages] = useState<Message[]>([
-    { text: "Hi! I'm the Elevated AI Works Assistant. How can I help you today?", isUser: false },
-  ]);
+  const [history, setHistory] = useState<AssistantMessage[]>(() => loadHistory());
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const cannedResponses = [
-    'We specialize in AI-powered product strategy, UX, and brand systems. What are you building?',
-    'Our team can help with UI/UX, web experiences, and AI integrations. Tell me about your timeline.',
-    'We love partnering with growing teams. Want help scoping a project or estimating effort?',
-  ];
+  const assistantUnavailable = !isSupabaseConfigured;
+  const messages: Message[] = history
+    .filter((message) => message.role !== 'system')
+    .map((message) => ({
+      text: message.content,
+      isUser: message.role === 'user',
+    }));
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -29,20 +74,42 @@ export function ChatWidget() {
     scrollToBottom();
   }, [messages]);
 
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return;
+    }
+
+    sessionStorage.setItem(STORAGE_KEY, JSON.stringify(history));
+  }, [history]);
+
   const handleSend = async () => {
     if (!input.trim() || isLoading) return;
 
+    if (assistantUnavailable) {
+      setErrorMessage('Assistant unavailable right now.');
+      return;
+    }
+
     const userMessage = input.trim();
-    setMessages((prev) => [...prev, { text: userMessage, isUser: true }]);
     setInput('');
     setIsLoading(true);
+    setErrorMessage(null);
 
-    const responseIndex = Math.floor(Math.random() * cannedResponses.length);
-    const assistantResponse = cannedResponses[responseIndex];
+    const nextHistory = [...history, { role: 'user', content: userMessage }];
+    setHistory(nextHistory);
 
-    await new Promise((resolve) => setTimeout(resolve, 650));
-    setMessages((prev) => [...prev, { text: assistantResponse, isUser: false }]);
-    setIsLoading(false);
+    try {
+      const assistantResponse = await sendAssistantMessage([SYSTEM_MESSAGE, ...nextHistory]);
+      setHistory((prev) => [...prev, { role: 'assistant', content: assistantResponse }]);
+    } catch (error) {
+      const message =
+        error instanceof Error && error.message
+          ? error.message
+          : 'Assistant unavailable right now.';
+      setErrorMessage(message);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -81,6 +148,22 @@ export function ChatWidget() {
                 Online
               </p>
             </div>
+            <Button
+              type="button"
+              size="sm"
+              variant="ghost"
+              className="text-xs"
+              disabled={isLoading}
+              onClick={() => {
+                setHistory([DEFAULT_ASSISTANT_MESSAGE]);
+                setErrorMessage(null);
+                if (typeof window !== 'undefined') {
+                  sessionStorage.removeItem(STORAGE_KEY);
+                }
+              }}
+            >
+              Clear chat
+            </Button>
           </div>
 
           {/* Messages */}
@@ -113,6 +196,11 @@ export function ChatWidget() {
 
           {/* Input */}
           <div className="p-3 sm:p-4 border-t border-border">
+            {(assistantUnavailable || errorMessage) && (
+              <p className="text-xs text-destructive mb-2">
+                {assistantUnavailable ? 'Assistant unavailable right now.' : errorMessage}
+              </p>
+            )}
             <div className="flex gap-2">
               <input
                 type="text"
@@ -120,7 +208,7 @@ export function ChatWidget() {
                 onChange={(e) => setInput(e.target.value)}
                 onKeyPress={handleKeyPress}
                 placeholder="Ask about our services..."
-                disabled={isLoading}
+                disabled={isLoading || assistantUnavailable}
                 className="flex-1 px-3 sm:px-4 py-2 sm:py-2.5 bg-secondary border border-border rounded-lg sm:rounded-xl text-xs sm:text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 disabled:opacity-50"
               />
               <Button 
@@ -128,7 +216,7 @@ export function ChatWidget() {
                 size="icon" 
                 variant="hero"
                 className="rounded-lg sm:rounded-xl h-9 w-9 sm:h-10 sm:w-10"
-                disabled={isLoading || !input.trim()}
+                disabled={isLoading || assistantUnavailable || !input.trim()}
               >
                 <Send size={16} className="sm:w-[18px] sm:h-[18px]" />
               </Button>
