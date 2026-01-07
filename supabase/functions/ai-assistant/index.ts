@@ -27,28 +27,40 @@ type Lead = {
 };
 
 const ALLOWED_ORIGINS = new Set([
-  'http://localhost:5173',
-  'http://localhost:5174',
-  'http://localhost:8080',
-  'http://localhost:8083',
-  'http://localhost:8085',
-  'http://localhost:8086',
-  'http://localhost:8087',
-  'http://localhost:8088',
-  'http://localhost:8089',
-  'http://localhost:8090',
   'https://elevatedaiworks.com',
   'https://www.elevatedaiworks.com',
 ]);
 
-const buildCorsHeaders = (origin: string | null): Record<string, string> => {
+const ALLOWED_ORIGIN_PATTERNS = [
+  /^http:\/\/localhost:\d+$/,
+  /^http:\/\/127\.0\.0\.1:\d+$/,
+  /^http:\/\/10\.\d+\.\d+\.\d+:\d+$/,
+];
+
+const isAllowedOrigin = (origin: string | null): origin is string => {
+  if (!origin) {
+    return false;
+  }
+
+  if (ALLOWED_ORIGINS.has(origin)) {
+    return true;
+  }
+
+  return ALLOWED_ORIGIN_PATTERNS.some((pattern) => pattern.test(origin));
+};
+
+const buildCorsHeaders = (
+  origin: string | null,
+  allowOrigin: boolean,
+): Record<string, string> => {
   const headers: Record<string, string> = {
     'Access-Control-Allow-Methods': 'POST, OPTIONS',
     'Access-Control-Allow-Headers': 'Content-Type, Authorization, apikey',
     'Access-Control-Allow-Credentials': 'true',
+    Vary: 'Origin',
   };
 
-  if (origin && ALLOWED_ORIGINS.has(origin)) {
+  if (origin && allowOrigin) {
     headers['Access-Control-Allow-Origin'] = origin;
   }
 
@@ -212,14 +224,23 @@ const extractLeadFromMessages = (messages: AssistantMessage[]): Lead | null => {
 
 serve(async (req) => {
   const origin = req.headers.get('Origin');
-  const corsHeaders = buildCorsHeaders(origin);
+  console.log('ai-assistant origin', origin);
+  const allowOrigin = isAllowedOrigin(origin);
+  const corsHeaders = buildCorsHeaders(origin, allowOrigin);
 
   if (req.method === 'OPTIONS') {
+    if (origin && !allowOrigin) {
+      return new Response('Forbidden', { status: 403, headers: corsHeaders });
+    }
     return new Response('ok', { status: 200, headers: corsHeaders });
   }
 
   if (req.method !== 'POST') {
     return new Response('Method not allowed', { status: 405, headers: corsHeaders });
+  }
+
+  if (origin && !allowOrigin) {
+    return new Response('Forbidden', { status: 403, headers: corsHeaders });
   }
 
   const openAiKey = Deno.env.get('OPENAI_API_KEY');
