@@ -3,6 +3,7 @@ import { Header } from './Header';
 import { Footer } from './Footer';
 import { ChatWidget } from '@/components/ChatWidget';
 import { CookieBanner } from '@/components/CookieBanner';
+import { LocalBusinessSchema } from '@/components/seo/LocalBusinessSchema';
 import mountainBg from '@/assets/mountain-bg.jpg';
 
 interface LayoutProps {
@@ -12,6 +13,7 @@ interface LayoutProps {
 export function Layout({ children }: LayoutProps) {
   return (
     <div className="min-h-screen flex flex-col relative">
+      <LocalBusinessSchema />
       {/* Global Mountain Background */}
       <div 
         className="fixed inset-0 z-0 pointer-events-none"

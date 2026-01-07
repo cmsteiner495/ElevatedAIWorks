@@ -7,6 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Send, Check } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { PageMeta } from '@/components/seo/PageMeta';
 
 const faqs = [
   {
@@ -58,6 +59,11 @@ const Contact = () => {
 
   return (
     <Layout>
+      <PageMeta
+        title="Contact | Elevated AI Works Colorado Springs"
+        description="Contact Elevated AI Works to start your Colorado Springs branding or web design project. Share your goals and book a consult."
+        canonicalPath="/contact"
+      />
       {/* Hero - No dark overlay, mountain bg shows through */}
       <section className="pt-8 pb-12 sm:pt-12 sm:pb-16 lg:pt-20 lg:pb-24">
         <div className="container">

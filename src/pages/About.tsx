@@ -1,5 +1,6 @@
 import { Layout } from '@/components/layout/Layout';
 import { Heart, Shield, Sparkles, Mountain } from 'lucide-react';
+import { PageMeta } from '@/components/seo/PageMeta';
 import logoFull from '@/assets/logo-full.png';
 
 const values = [
@@ -41,6 +42,11 @@ const timeline = [
 const About = () => {
   return (
     <Layout>
+      <PageMeta
+        title="About | Elevated AI Works Colorado Springs Studio"
+        description="Learn about Elevated AI Works, a Colorado Springs-based studio focused on thoughtful branding, web design, and practical AI tools."
+        canonicalPath="/about"
+      />
       {/* Hero */}
       <section className="pt-8 pb-12 sm:pt-12 sm:pb-16 lg:pt-20 lg:pb-24 bg-gradient-to-b from-card to-background">
         <div className="container">
