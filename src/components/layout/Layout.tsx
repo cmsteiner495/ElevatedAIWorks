@@ -2,6 +2,7 @@ import { ReactNode } from 'react';
 import { Header } from './Header';
 import { Footer } from './Footer';
 import { ChatWidget } from '@/components/ChatWidget';
+import { CookieBanner } from '@/components/CookieBanner';
 import mountainBg from '@/assets/mountain-bg.jpg';
 
 interface LayoutProps {
@@ -30,6 +31,7 @@ export function Layout({ children }: LayoutProps) {
         {children}
       </main>
       <Footer />
+      <CookieBanner />
       <ChatWidget />
     </div>
   );
