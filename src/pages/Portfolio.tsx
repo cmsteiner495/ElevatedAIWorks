@@ -3,6 +3,7 @@ import { Layout } from '@/components/layout/Layout';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
+import { PageMeta } from '@/components/seo/PageMeta';
 
 interface PortfolioProject {
   id: string;
@@ -86,6 +87,11 @@ const Portfolio = () => {
 
   return (
     <Layout>
+      <PageMeta
+        title="Portfolio | Elevated AI Works Colorado Springs"
+        description="Browse recent branding, web design, and product work from Elevated AI Works helping Colorado Springs businesses stand out online."
+        canonicalPath="/portfolio"
+      />
       {/* Hero */}
       <section className="pt-8 pb-8 sm:pt-12 sm:pb-12 lg:pt-20 lg:pb-16">
         <div className="container">

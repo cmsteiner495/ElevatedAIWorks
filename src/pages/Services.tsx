@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { Palette, Globe, FileText, Bot, Search, BarChart3, Wrench, Check, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Layout } from '@/components/layout/Layout';
+import { PageMeta } from '@/components/seo/PageMeta';
 
 const services = [
   {
@@ -114,6 +115,11 @@ const services = [
 const Services = () => {
   return (
     <Layout>
+      <PageMeta
+        title="Services | Elevated AI Works in Colorado Springs"
+        description="Explore branding, web design, SEO, and AI automation services from Elevated AI Works, supporting Colorado Springs businesses with clear, practical solutions."
+        canonicalPath="/services"
+      />
       {/* Hero */}
       <section className="pt-8 pb-8 sm:pt-12 sm:pb-12 lg:pt-20 lg:pb-16">
         <div className="container">

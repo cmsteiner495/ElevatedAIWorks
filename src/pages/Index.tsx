@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { Palette, Globe, FileText, Bot, Search, BarChart3, Wrench, ArrowRight, Shield, Target, Heart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Layout } from '@/components/layout/Layout';
+import { PageMeta } from '@/components/seo/PageMeta';
 import logoFull from '@/assets/logo-full.png';
 
 const features = [
@@ -66,6 +67,11 @@ const whyDifferent = [
 const Index = () => {
   return (
     <Layout>
+      <PageMeta
+        title="Elevated AI Works | Web Design & Branding in Colorado Springs"
+        description="Elevated AI Works delivers branding, web design, and practical AI tools for Colorado Springs businesses ready to grow with polished, modern digital experiences."
+        canonicalPath="/"
+      />
       {/* Hero Section */}
       <section className="relative min-h-[70vh] sm:min-h-[80vh] lg:min-h-[85vh] flex items-center">
         <div className="container py-12 sm:py-16 lg:py-24">
@@ -79,13 +85,13 @@ const Index = () => {
 
               {/* Headline */}
               <h1 className="font-display text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-foreground leading-[1.1] mb-4 sm:mb-6 opacity-0 animate-fade-up delay-100">
-                Thoughtful design.{' '}
+                Thoughtful design for Colorado Springs.{' '}
                 <span className="text-gradient">Practical tools.</span>
               </h1>
 
               {/* Description */}
               <p className="text-base sm:text-lg text-muted-foreground leading-relaxed mb-6 sm:mb-8 opacity-0 animate-fade-up delay-200">
-                We help small businesses look polished and run smoother — with branding, websites, and systems that actually make sense for how you work.
+                We help small businesses look polished and run smoother — with branding, websites, and systems that actually make sense for how you work while serving Colorado Springs and the surrounding Colorado communities.
               </p>
 
               {/* CTAs */}
