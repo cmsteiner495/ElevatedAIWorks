@@ -35,7 +35,8 @@ const faqs = [
 const Contact = () => {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
+  const [isError, setIsError] = useState<string | null>(null);
 
   // Scroll to top on mount
   useEffect(() => {
@@ -45,16 +46,48 @@ const Contact = () => {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsSubmitting(true);
+    setIsError(null);
 
-    // Simulate form submission
-    await new Promise((resolve) => setTimeout(resolve, 1500));
+    const endpoint = import.meta.env.VITE_FORMSPREE_ENDPOINT;
+    if (!endpoint) {
+      setIsSubmitting(false);
+      setIsError('Form submission is currently unavailable. Please try again later.');
+      return;
+    }
 
-    setIsSubmitting(false);
-    setIsSubmitted(true);
-    toast({
-      title: 'Message sent!',
-      description: "We'll get back to you within 24-48 hours.",
-    });
+    const form = e.currentTarget;
+    const formData = new FormData(form);
+    const payload = Object.fromEntries(formData.entries());
+
+    try {
+      const response = await fetch(endpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+        },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await response.json().catch(() => ({}));
+      const isFormspreeSuccess = Boolean(data?.ok ?? data?.success);
+      const isSuccessful = response.ok || isFormspreeSuccess;
+
+      if (!isSuccessful) {
+        throw new Error(data?.error || 'Unable to send message.');
+      }
+
+      setIsSuccess(true);
+      form.reset();
+      toast({
+        title: 'Message sent!',
+        description: "We'll get back to you within 24-48 hours.",
+      });
+    } catch (error) {
+      setIsError('Something went wrong. Please try again or email us directly.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -89,7 +122,7 @@ const Contact = () => {
                   Send a Message
                 </h2>
 
-                {isSubmitted ? (
+                {isSuccess ? (
                   <div className="text-center py-12">
                     <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-primary/20 flex items-center justify-center">
                       <Check className="w-8 h-8 text-primary" />
@@ -161,6 +194,11 @@ const Contact = () => {
                         </>
                       )}
                     </Button>
+                    {isError ? (
+                      <p className="text-sm text-destructive" role="alert">
+                        {isError}
+                      </p>
+                    ) : null}
                   </form>
                 )}
               </div>
