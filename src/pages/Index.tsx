@@ -85,8 +85,8 @@ const Index = () => {
 
               {/* Headline */}
               <h1 className="font-display text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-foreground leading-[1.1] mb-4 sm:mb-6 opacity-0 animate-fade-up delay-100">
-                Thoughtful design for Colorado Springs.{' '}
-                <span className="text-gradient">Practical tools.</span>
+                Thoughtful design and practical tools.{' '}
+                <span className="text-gradient">Built for Colorado.</span>
               </h1>
 
               {/* Description */}
