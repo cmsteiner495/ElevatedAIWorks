@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { MessageCircle, X, Send, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { sendAssistantMessage } from '@/lib/aiAssistant';
+import { sendAssistantMessage, type Lead } from '@/lib/aiAssistant';
 import { isSupabaseConfigured } from '@/lib/supabaseClient';
 
 interface Message {
@@ -15,7 +15,8 @@ interface AssistantMessage {
 }
 
 const STORAGE_KEY = 'eaw_assistant_history';
-const LEAD_SUBMITTED_KEY = 'eaw_chat_lead_submitted';
+const LEAD_SUBMITTED_KEY_PREFIX = 'leadSent';
+const PENDING_LEAD_KEY = 'eaw_chat_lead_pending';
 const DEFAULT_ASSISTANT_MESSAGE: AssistantMessage = {
   role: 'assistant',
   content: "Hi! I'm the Elevated AI Works Assistant. How can I help you today?",
@@ -26,109 +27,91 @@ const SYSTEM_MESSAGE: AssistantMessage = {
     'You are the Elevated AI Works assistant. Keep responses concise, friendly, and helpful. Never invent prices. You may only mention these ranges exactly: Branding $25–$150 (one-time), Websites $150–$2,000 (one-time), Systems & Docs $50–$500 (one-time), AI Tools $300–$1,000 (one-time), Analytics $50–$500 (one-time), SEO $25–$100/month, Maintenance $25–$200/month. If scope is unclear, provide the correct range and say "final quote after a quick consult." Encourage booking a consultation and ask clarifying questions to move projects forward.',
 };
 
-type LeadCapture = {
-  name: string;
-  email: string;
-  business: string;
-  service_interest: string;
-  estimated_range: string;
-  timeline: string;
-  notes: string;
+const formspreeEndpoint = import.meta.env.VITE_FORMSPREE_ENDPOINT;
+
+const getLeadKey = (lead: Lead) => {
+  const service = lead.service ?? 'unspecified';
+  const date = lead.createdAt?.slice(0, 10) ?? new Date().toISOString().slice(0, 10);
+  return `${LEAD_SUBMITTED_KEY_PREFIX}:${lead.email}:${service}:${date}`;
 };
 
-const LEAD_CAPTURE_MARKER = 'LEAD_CAPTURE:';
-const formspreeEndpoint = import.meta.env.VITE_FORMSPREE_CHAT_LEADS_ENDPOINT;
+const trimSnippet = (snippet: string) => snippet.replace(/\s+/g, ' ').trim().slice(0, 500);
 
-const extractLeadCapture = (text: string) => {
-  const markerIndex = text.indexOf(LEAD_CAPTURE_MARKER);
-  if (markerIndex === -1) {
-    return { displayText: text.trim(), lead: null as LeadCapture | null };
-  }
-
-  const displayText = text.slice(0, markerIndex).trim();
-  const leadBlock = text.slice(markerIndex + LEAD_CAPTURE_MARKER.length).trim();
-  const lead: Partial<LeadCapture> = {};
-
-  leadBlock
-    .split(/\r?\n/)
-    .map((line) => line.trim())
-    .filter(Boolean)
-    .forEach((line) => {
-      const [rawKey, ...rest] = line.split('=');
-      if (!rawKey || rest.length === 0) {
-        return;
-      }
-      const key = rawKey.trim();
-      const value = rest.join('=').trim();
-      if (
-        key === 'name' ||
-        key === 'email' ||
-        key === 'business' ||
-        key === 'service_interest' ||
-        key === 'estimated_range' ||
-        key === 'timeline' ||
-        key === 'notes'
-      ) {
-        lead[key] = value;
-      }
-    });
-
-  const normalizedLead: LeadCapture = {
-    name: lead.name ?? '',
-    email: lead.email ?? '',
-    business: lead.business ?? '',
-    service_interest: lead.service_interest ?? '',
-    estimated_range: lead.estimated_range ?? '',
-    timeline: lead.timeline ?? '',
-    notes: lead.notes ?? '',
-  };
-
-  return {
-    displayText: displayText || 'Thanks! I have the details I need.',
-    lead: normalizedLead,
-  };
+const buildConversationSnippet = (history: AssistantMessage[], assistantText: string) => {
+  const combined = [...history, { role: 'assistant' as const, content: assistantText }];
+  const lastTurns = combined.slice(-3);
+  const snippet = lastTurns
+    .map((message) => `${message.role === 'user' ? 'User' : 'Assistant'}: ${message.content}`)
+    .join('\n');
+  return trimSnippet(snippet);
 };
 
-const submitLeadCapture = async (lead: LeadCapture) => {
+const storePendingLead = (lead: Lead, snippet: string, key: string) => {
+  sessionStorage.setItem(
+    PENDING_LEAD_KEY,
+    JSON.stringify({
+      lead,
+      snippet,
+      key,
+    }),
+  );
+};
+
+const clearPendingLead = () => {
+  sessionStorage.removeItem(PENDING_LEAD_KEY);
+};
+
+const submitLeadToFormspree = async (
+  lead: Lead,
+  snippet: string,
+  { force }: { force: boolean },
+) => {
   if (typeof window === 'undefined') {
     return 'failed';
-  }
-
-  if (sessionStorage.getItem(LEAD_SUBMITTED_KEY) === '1') {
-    return 'skipped';
   }
 
   if (!formspreeEndpoint) {
     return 'failed';
   }
 
+  const leadKey = getLeadKey(lead);
+  if (!force && sessionStorage.getItem(leadKey)) {
+    return 'skipped';
+  }
+
   try {
+    if (import.meta.env.DEV) {
+      console.debug('Submitting lead to Formspree', lead);
+    }
     const response = await fetch(formspreeEndpoint, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        _subject: 'EAW Chat Lead — Quote Request',
+        _subject: 'New AI Assistant Lead — Elevated AI Works',
         _replyto: lead.email,
-        type: 'chat_lead',
         name: lead.name,
         email: lead.email,
-        business: lead.business,
-        service_interest: lead.service_interest,
-        estimated_range: lead.estimated_range,
+        service: lead.service,
+        budget: lead.budget,
         timeline: lead.timeline,
         notes: lead.notes,
-        pageUrl: window.location.href,
-        userAgent: navigator.userAgent,
+        pageUrl: lead.pageUrl,
+        createdAt: lead.createdAt,
+        source: lead.source,
+        conversationSnippet: snippet,
       }),
     });
 
     if (!response.ok) {
+      storePendingLead(lead, snippet, leadKey);
       return 'failed';
     }
 
-    sessionStorage.setItem(LEAD_SUBMITTED_KEY, '1');
+    sessionStorage.setItem(leadKey, '1');
+    clearPendingLead();
     return 'success';
   } catch {
+    storePendingLead(lead, snippet, leadKey);
     return 'failed';
   }
 };
@@ -167,6 +150,8 @@ export function ChatWidget() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const assistantUnavailable = !isSupabaseConfigured;
+  const pendingLead =
+    typeof window !== 'undefined' ? sessionStorage.getItem(PENDING_LEAD_KEY) : null;
   const messages: Message[] = history
     .filter((message) => message.role !== 'system')
     .map((message) => ({
@@ -199,6 +184,7 @@ export function ChatWidget() {
     }
 
     const userMessage = input.trim();
+    const forceSend = /send again|retry|resend/i.test(userMessage);
     setInput('');
     setIsLoading(true);
     setErrorMessage(null);
@@ -208,17 +194,30 @@ export function ChatWidget() {
 
     try {
       const assistantResponse = await sendAssistantMessage([SYSTEM_MESSAGE, ...nextHistory]);
-      const { displayText, lead } = extractLeadCapture(assistantResponse);
+      const displayText = assistantResponse.text.trim();
+      const lead = assistantResponse.lead ?? null;
       setHistory((prev) => [...prev, { role: 'assistant', content: displayText }]);
 
+      if (import.meta.env.DEV) {
+        console.debug('ai-assistant lead', lead);
+      }
+
       if (lead) {
-        const leadResult = await submitLeadCapture(lead);
+        const enrichedLead: Lead = {
+          ...lead,
+          pageUrl: lead.pageUrl ?? window.location.href,
+          createdAt: lead.createdAt ?? new Date().toISOString(),
+        };
+        const snippet = buildConversationSnippet(nextHistory, displayText);
+        const leadResult = await submitLeadToFormspree(enrichedLead, snippet, {
+          force: forceSend,
+        });
         if (leadResult === 'success') {
           setHistory((prev) => [
             ...prev,
             {
               role: 'assistant',
-              content: 'Thanks! Your details are in—our team will follow up shortly.',
+              content: 'Thanks — your details were sent.',
             },
           ]);
         } else if (leadResult === 'failed') {
@@ -226,9 +225,38 @@ export function ChatWidget() {
             ...prev,
             {
               role: 'assistant',
-              content: 'Couldn’t submit right now—please use the Contact page.',
+              content: 'Couldn’t send your details — please use the Contact form.',
             },
           ]);
+        }
+      } else if (pendingLead && forceSend) {
+        try {
+          const stored = JSON.parse(pendingLead) as {
+            lead: Lead;
+            snippet: string;
+          };
+          const leadResult = await submitLeadToFormspree(stored.lead, stored.snippet, {
+            force: true,
+          });
+          if (leadResult === 'success') {
+            setHistory((prev) => [
+              ...prev,
+              {
+                role: 'assistant',
+                content: 'Thanks — your details were sent.',
+              },
+            ]);
+          } else if (leadResult === 'failed') {
+            setHistory((prev) => [
+              ...prev,
+              {
+                role: 'assistant',
+                content: 'Couldn’t send your details — please use the Contact form.',
+              },
+            ]);
+          }
+        } catch {
+          clearPendingLead();
         }
       }
     } catch (error) {

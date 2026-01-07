@@ -5,10 +5,36 @@ type AssistantMessage = {
   content: string;
 };
 
+type LeadService =
+  | 'Branding'
+  | 'Websites'
+  | 'Systems & Docs'
+  | 'AI Tools'
+  | 'SEO'
+  | 'Analytics'
+  | 'Maintenance';
+
+export type Lead = {
+  name?: string;
+  email: string;
+  service?: LeadService;
+  budget?: string;
+  timeline?: string;
+  notes?: string;
+  source: 'ai-assistant';
+  pageUrl?: string;
+  createdAt: string;
+};
+
+export type AssistantResponse = {
+  text: string;
+  lead?: Lead | null;
+};
+
 const FALLBACK_ERROR = 'Sorry, the assistant is unavailable right now. Please try again soon.';
 const TIMEOUT_ERROR = 'Sorry, the assistant is taking too long. Please try again.';
 
-export async function sendAssistantMessage(messages: AssistantMessage[]): Promise<string> {
+export async function sendAssistantMessage(messages: AssistantMessage[]): Promise<AssistantResponse> {
   if (!isSupabaseConfigured || !supabase) {
     throw new Error(FALLBACK_ERROR);
   }
@@ -32,22 +58,28 @@ export async function sendAssistantMessage(messages: AssistantMessage[]): Promis
     }
 
     if (typeof data === 'string') {
-      return data;
+      return { text: data };
     }
 
     if (data && typeof data === 'object') {
-      const response = data as { ok?: boolean; error?: string; text?: string; message?: string };
+      const response = data as {
+        ok?: boolean;
+        error?: string;
+        text?: string;
+        message?: string;
+        lead?: Lead | null;
+      };
 
       if (response.ok === false) {
         throw new Error(response.error || 'Assistant error');
       }
 
       if (typeof response.text === 'string') {
-        return response.text;
+        return { text: response.text, lead: response.lead };
       }
 
       if (typeof response.message === 'string') {
-        return response.message;
+        return { text: response.message, lead: response.lead };
       }
     }
 
