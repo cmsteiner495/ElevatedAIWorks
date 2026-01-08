@@ -20,7 +20,6 @@ const serviceLinks = [
 const socialLinks = [
   { name: 'Facebook', icon: Facebook, url: 'https://facebook.com' },
   { name: 'Instagram', icon: Instagram, url: 'https://instagram.com' },
-  { name: 'Coming Soon', icon: null, url: '#' }, // Placeholder for third platform
 ];
 
 export function Footer() {

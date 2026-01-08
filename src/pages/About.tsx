@@ -28,12 +28,12 @@ const values = [
 
 const timeline = [
   {
-    year: '2023',
+    year: '2025',
     title: 'The Beginning',
     description: 'Elevated AI Works was founded with a simple mission: bring agency-quality work to small businesses at fair prices.',
   },
   {
-    year: '2024',
+    year: '2026',
     title: 'Growing Together',
     description: 'We expanded our services to include AI tools and automation, helping clients work smarter.',
   },
