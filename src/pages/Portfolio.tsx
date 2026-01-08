@@ -161,7 +161,7 @@ const Portfolio = () => {
                   }}
                   role="button"
                   tabIndex={0}
-                  className="portfolioCard group text-left bg-card/60 backdrop-blur-sm border border-border/30 rounded-xl sm:rounded-2xl hover:border-primary/40 transition-all duration-300"
+                  className="portfolioCard group h-full text-left bg-card/60 backdrop-blur-sm border border-border/30 rounded-xl sm:rounded-2xl hover:border-primary/40 transition-all duration-300"
                 >
                   <div className="portfolioCardImage bg-secondary/30">
                     <img
@@ -170,27 +170,29 @@ const Portfolio = () => {
                       className="portfolioCardImageImg group-hover:scale-105 transition-transform duration-500"
                     />
                   </div>
-                  <div className="portfolioCardContent flex h-full flex-col p-4 sm:p-6">
-                    <div className="flex flex-wrap gap-1.5 sm:gap-2 mb-2 sm:mb-3">
-                      {project.categories.map((cat) => (
-                        <Badge key={cat} variant="secondary" className="text-xs bg-secondary/50">
-                          {cat}
-                        </Badge>
-                      ))}
+                  <div className="portfolioCardContent flex flex-1 flex-col gap-3 p-4 sm:p-6">
+                    <div className="space-y-2">
+                      <div className="flex flex-wrap gap-1.5 sm:gap-2">
+                        {project.categories.map((cat) => (
+                          <Badge key={cat} variant="secondary" className="text-xs bg-secondary/50">
+                            {cat}
+                          </Badge>
+                        ))}
+                      </div>
+                      <h3 className="font-display text-lg sm:text-xl font-semibold text-foreground group-hover:text-primary transition-colors">
+                        {project.title}
+                      </h3>
+                      <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
+                        {project.description}
+                      </p>
                     </div>
-                    <h3 className="font-display text-lg sm:text-xl font-semibold text-foreground mb-1.5 sm:mb-2 group-hover:text-primary transition-colors">
-                      {project.title}
-                    </h3>
-                    <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
-                      {project.description}
-                    </p>
                     {project.external_link && (
                       <a
                         href={project.external_link}
                         target="_blank"
                         rel="noopener noreferrer"
                         onClick={(event) => event.stopPropagation()}
-                        className="mt-4 inline-flex items-center justify-center rounded-lg bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground transition-colors hover:bg-primary/90 sm:text-sm"
+                        className="inline-flex items-center justify-center rounded-lg bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground transition-colors hover:bg-primary/90 sm:text-sm"
                       >
                         View Project
                       </a>
