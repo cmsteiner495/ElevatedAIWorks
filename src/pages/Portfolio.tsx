@@ -161,16 +161,16 @@ const Portfolio = () => {
                   }}
                   role="button"
                   tabIndex={0}
-                  className="group text-left bg-card/60 backdrop-blur-sm border border-border/30 rounded-xl sm:rounded-2xl overflow-hidden hover:border-primary/40 transition-all duration-300"
+                  className="portfolioCard group text-left bg-card/60 backdrop-blur-sm border border-border/30 rounded-xl sm:rounded-2xl hover:border-primary/40 transition-all duration-300"
                 >
-                  <div className="portfolio-card-image aspect-video overflow-hidden bg-secondary/30">
+                  <div className="portfolioCardImage bg-secondary/30">
                     <img
                       src={project.image_url || 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800&q=80'}
                       alt={project.title}
-                      className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      className="portfolioCardImageImg group-hover:scale-105 transition-transform duration-500"
                     />
                   </div>
-                  <div className="flex h-full flex-col p-4 sm:p-6">
+                  <div className="portfolioCardContent flex h-full flex-col p-4 sm:p-6">
                     <div className="flex flex-wrap gap-1.5 sm:gap-2 mb-2 sm:mb-3">
                       {project.categories.map((cat) => (
                         <Badge key={cat} variant="secondary" className="text-xs bg-secondary/50">
@@ -211,14 +211,14 @@ const Portfolio = () => {
 
       {/* Project Modal */}
       <Dialog open={!!selectedProject} onOpenChange={() => setSelectedProject(null)}>
-        <DialogContent className="max-w-[calc(100vw-2rem)] sm:max-w-lg md:max-w-2xl bg-card/95 backdrop-blur-xl border-border/50 max-h-[85vh] overflow-y-auto">
+        <DialogContent className="portfolioModal max-w-[calc(100vw-2rem)] sm:max-w-lg md:max-w-2xl bg-card/95 backdrop-blur-xl border-border/50 max-h-[85vh] overflow-y-auto">
           {selectedProject && (
             <>
-              <div className="aspect-video rounded-lg overflow-hidden mb-3 sm:mb-4 bg-secondary/30">
+              <div className="portfolioModalHero mb-3 sm:mb-4 bg-secondary/30">
                 <img
                   src={selectedProject.image_url || 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800&q=80'}
                   alt={selectedProject.title}
-                  className="w-full h-full object-cover"
+                  className="portfolioModalHeroImg"
                 />
               </div>
               <DialogHeader>
