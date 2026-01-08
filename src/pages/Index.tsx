@@ -91,7 +91,7 @@ const Index = () => {
 
               {/* Description */}
               <p className="text-base sm:text-lg text-muted-foreground leading-relaxed mb-6 sm:mb-8 opacity-0 animate-fade-up delay-200">
-                We help small businesses look polished and run smoother — with branding, websites, and systems that actually make sense for how you work while serving Colorado Springs and the surrounding Colorado communities.
+                We help small businesses look polished and run smoother — with branding, websites, and systems that actually make sense for how you work while serving Colorado Springs and the surrounding communities.
               </p>
 
               {/* CTAs */}

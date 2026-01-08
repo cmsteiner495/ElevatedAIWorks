@@ -26,10 +26,45 @@ type Lead = {
   createdAt: string;
 };
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-  'Access-Control-Allow-Methods': 'POST, OPTIONS',
+const ALLOWED_ORIGINS = new Set([
+  'https://elevatedaiworks.com',
+  'https://www.elevatedaiworks.com',
+]);
+
+const ALLOWED_ORIGIN_PATTERNS = [
+  /^http:\/\/localhost:\d+$/,
+  /^http:\/\/127\.0\.0\.1:\d+$/,
+  /^http:\/\/10\.\d+\.\d+\.\d+:\d+$/,
+];
+
+const isAllowedOrigin = (origin: string | null): origin is string => {
+  if (!origin) {
+    return false;
+  }
+
+  if (ALLOWED_ORIGINS.has(origin)) {
+    return true;
+  }
+
+  return ALLOWED_ORIGIN_PATTERNS.some((pattern) => pattern.test(origin));
+};
+
+const buildCorsHeaders = (
+  origin: string | null,
+  allowOrigin: boolean,
+): Record<string, string> => {
+  const headers: Record<string, string> = {
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization, apikey',
+    'Access-Control-Allow-Credentials': 'true',
+    Vary: 'Origin',
+  };
+
+  if (origin && allowOrigin) {
+    headers['Access-Control-Allow-Origin'] = origin;
+  }
+
+  return headers;
 };
 
 const PRICING_TRUTH_MAP: Record<LeadService, string> = {
@@ -188,12 +223,24 @@ const extractLeadFromMessages = (messages: AssistantMessage[]): Lead | null => {
 };
 
 serve(async (req) => {
+  const origin = req.headers.get('Origin');
+  console.log('ai-assistant origin', origin);
+  const allowOrigin = isAllowedOrigin(origin);
+  const corsHeaders = buildCorsHeaders(origin, allowOrigin);
+
   if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders });
+    if (origin && !allowOrigin) {
+      return new Response('Forbidden', { status: 403, headers: corsHeaders });
+    }
+    return new Response('ok', { status: 200, headers: corsHeaders });
   }
 
   if (req.method !== 'POST') {
     return new Response('Method not allowed', { status: 405, headers: corsHeaders });
+  }
+
+  if (origin && !allowOrigin) {
+    return new Response('Forbidden', { status: 403, headers: corsHeaders });
   }
 
   const openAiKey = Deno.env.get('OPENAI_API_KEY');

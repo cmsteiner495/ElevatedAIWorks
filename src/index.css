@@ -1,8 +1,8 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap');
 
 @layer base {
   :root {
@@ -104,6 +104,51 @@
   .hover-lift:hover {
     @apply -translate-y-0.5;
     box-shadow: var(--shadow-card);
+  }
+
+  .portfolioCard {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .portfolioCardContent {
+    position: static;
+  }
+
+  .portfolioCardImage {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+    border-radius: 12px;
+  }
+
+  .portfolioCardImage img,
+  .portfolioCardImageImg {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .portfolioModal {
+    overflow: hidden;
+  }
+
+  .portfolioModalHero {
+    width: 100%;
+    max-height: clamp(220px, 35vh, 360px);
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+    border-radius: 12px;
+  }
+
+  .portfolioModalHero img,
+  .portfolioModalHeroImg {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
   }
 }
 
