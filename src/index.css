@@ -178,7 +178,8 @@
 
 @media (max-width: 768px) {
   .fixed.inset-0.z-0.pointer-events-none {
-    background-image: url('/src/assets/mobilebg.png') !important;
+    background-image: none !important;
+    background-attachment: scroll;
   }
 
   .fixed.inset-0.z-0.pointer-events-none > div {
@@ -188,6 +189,40 @@
 
   .hero-section {
     position: relative;
+    z-index: 1;
+    background-image: none;
+  }
+
+  .hero-section::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 100vh;
+    background-image: url('/src/assets/mobilebg.png');
+    background-size: cover;
+    background-position: center top;
+    background-repeat: no-repeat;
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  .hero-section::after {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 100vh;
+    background: linear-gradient(
+      to bottom,
+      hsl(var(--background) / 0.85),
+      hsl(var(--background) / 0.92),
+      hsl(var(--background))
+    );
+    z-index: 1;
+    pointer-events: none;
   }
 
   .hero-content {
