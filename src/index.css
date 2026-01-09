@@ -178,13 +178,35 @@
 
 @media (max-width: 768px) {
   .fixed.inset-0.z-0.pointer-events-none {
-    background-image: url('/src/assets/mobilebg.png') !important;
-    background-size: cover !important;
-    background-position: center top !important;
+    background-image: none !important;
   }
 
   .fixed.inset-0.z-0.pointer-events-none > div {
     opacity: 0.85;
+    z-index: 1;
+  }
+
+  .hero-section {
+    position: relative;
+  }
+
+  .hero-section::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-image: url('/src/assets/mobilebg.png');
+    background-size: cover;
+    background-position: center top;
+    background-repeat: no-repeat;
+    z-index: 0;
+  }
+
+  .hero-content {
+    position: relative;
+    z-index: 2;
   }
 }
 

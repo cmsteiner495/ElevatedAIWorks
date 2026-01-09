@@ -73,8 +73,8 @@ const Index = () => {
         canonicalPath="/"
       />
       {/* Hero Section */}
-      <section className="relative min-h-[70vh] sm:min-h-[80vh] lg:min-h-[85vh] flex items-center">
-        <div className="container py-12 sm:py-16 lg:py-24">
+      <section className="hero-section relative min-h-[70vh] sm:min-h-[80vh] lg:min-h-[85vh] flex items-center">
+        <div className="container py-12 sm:py-16 lg:py-24 hero-content">
           <div className="grid lg:grid-cols-2 gap-8 sm:gap-12 lg:gap-16 items-center">
             {/* Left Content */}
             <div className="max-w-2xl">
