@@ -1,9 +1,15 @@
 import { Layout } from '@/components/layout/Layout';
 import { RotateCcw } from 'lucide-react';
+import { PageMeta } from '@/components/seo/PageMeta';
 
 const Refund = () => {
   return (
     <Layout>
+      <PageMeta
+        title="Refund Policy | Elevated AI Works"
+        description="We stand behind the quality of our work. Our goal is your complete satisfaction with every project."
+        canonicalPath="/refund"
+      />
       <section className="pt-12 pb-20 lg:pt-20 lg:pb-28">
         <div className="container">
           <div className="max-w-3xl mx-auto">

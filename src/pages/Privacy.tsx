@@ -1,9 +1,15 @@
 import { Layout } from '@/components/layout/Layout';
 import { Shield } from 'lucide-react';
+import { PageMeta } from '@/components/seo/PageMeta';
 
 const Privacy = () => {
   return (
     <Layout>
+      <PageMeta
+        title="Privacy Policy | Elevated AI Works"
+        description="We collect information you provide directly to us, such as when you fill out a contact form, request a consultation, or communicate with us via email."
+        canonicalPath="/privacy"
+      />
       <section className="pt-12 pb-20 lg:pt-20 lg:pb-28">
         <div className="container">
           <div className="max-w-3xl mx-auto">

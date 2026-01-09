@@ -12,8 +12,8 @@ export const LocalBusinessSchema = () => {
       areaServed: ["Colorado Springs, CO", "Colorado"],
       sameAs: [
         "https://www.linkedin.com/company/elevatedaiworks",
-        "https://www.instagram.com/elevatedaiworks",
-        "https://www.facebook.com/elevatedaiworks",
+        "https://www.instagram.com/elevatedaiworks/",
+        "https://www.facebook.com/share/1812Qn1Mxh/?mibextid=wwXIfr",
       ],
     };
 
