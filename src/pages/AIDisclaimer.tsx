@@ -1,9 +1,15 @@
 import { Layout } from '@/components/layout/Layout';
 import { Bot } from 'lucide-react';
+import { PageMeta } from '@/components/seo/PageMeta';
 
 const AIDisclaimer = () => {
   return (
     <Layout>
+      <PageMeta
+        title="AI Disclaimer | Elevated AI Works"
+        description="Elevated AI Works uses artificial intelligence tools and technologies as part of our creative and business processes."
+        canonicalPath="/ai-disclaimer"
+      />
       <section className="pt-12 pb-20 lg:pt-20 lg:pb-28">
         <div className="container">
           <div className="max-w-3xl mx-auto">

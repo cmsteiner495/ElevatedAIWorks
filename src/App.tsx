@@ -32,6 +32,29 @@ const AnalyticsManager = () => {
   return null;
 };
 
+const ScrollToTop = () => {
+  const { pathname } = useLocation();
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+
+  return null;
+};
+
+const ScrollRestorationManager = () => {
+  useEffect(() => {
+    if ("scrollRestoration" in window.history) {
+      window.history.scrollRestoration = "manual";
+      return () => {
+        window.history.scrollRestoration = "auto";
+      };
+    }
+  }, []);
+
+  return null;
+};
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
@@ -39,6 +62,8 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <AnalyticsManager />
+        <ScrollRestorationManager />
+        <ScrollToTop />
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/services" element={<Services />} />

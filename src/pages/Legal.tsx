@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { Layout } from '@/components/layout/Layout';
 import { FileText, Bot, Shield, ScrollText, RotateCcw } from 'lucide-react';
+import { PageMeta } from '@/components/seo/PageMeta';
 
 const legalPages = [
   {
@@ -32,6 +33,11 @@ const legalPages = [
 const Legal = () => {
   return (
     <Layout>
+      <PageMeta
+        title="Legal Center | Elevated AI Works"
+        description="Transparency matters to us. Here you'll find all our legal documents and policies."
+        canonicalPath="/legal"
+      />
       <section className="pt-12 pb-20 lg:pt-20 lg:pb-28 bg-gradient-to-b from-card to-background">
         <div className="container">
           <div className="max-w-3xl mx-auto text-center mb-12">

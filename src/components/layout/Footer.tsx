@@ -18,8 +18,8 @@ const serviceLinks = [
 ];
 
 const socialLinks = [
-  { name: 'Facebook', icon: Facebook, url: 'https://facebook.com' },
-  { name: 'Instagram', icon: Instagram, url: 'https://instagram.com' },
+  { name: 'Facebook', icon: Facebook, url: 'https://www.facebook.com/share/1812Qn1Mxh/?mibextid=wwXIfr' },
+  { name: 'Instagram', icon: Instagram, url: 'https://www.instagram.com/elevatedaiworks/' },
 ];
 
 export function Footer() {
@@ -94,6 +94,7 @@ export function Footer() {
                   href={link.url}
                   target="_blank"
                   rel="noopener noreferrer"
+                  aria-label={`Visit Elevated AI Works on ${link.name}`}
                   className="flex items-center gap-2 text-xs sm:text-sm text-muted-foreground hover:text-primary transition-colors"
                 >
                   {link.icon ? (
