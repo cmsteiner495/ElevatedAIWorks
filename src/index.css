@@ -178,7 +178,7 @@
 
 @media (max-width: 768px) {
   .fixed.inset-0.z-0.pointer-events-none {
-    background-image: none !important;
+    background-image: url('/src/assets/mobilebg.png') !important;
   }
 
   .fixed.inset-0.z-0.pointer-events-none > div {
@@ -188,20 +188,6 @@
 
   .hero-section {
     position: relative;
-  }
-
-  .hero-section::before {
-    content: '';
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background-image: url('/src/assets/mobilebg.png');
-    background-size: cover;
-    background-position: center top;
-    background-repeat: no-repeat;
-    z-index: 0;
   }
 
   .hero-content {
