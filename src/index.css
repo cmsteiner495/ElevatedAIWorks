@@ -176,6 +176,18 @@
   .delay-500 { animation-delay: 0.5s; }
 }
 
+@media (max-width: 768px) {
+  .fixed.inset-0.z-0.pointer-events-none {
+    background-image: url('/src/assets/mobilebg.png') !important;
+    background-size: cover !important;
+    background-position: center top !important;
+  }
+
+  .fixed.inset-0.z-0.pointer-events-none > div {
+    opacity: 0.85;
+  }
+}
+
 @keyframes fadeUp {
   from {
     opacity: 0;
