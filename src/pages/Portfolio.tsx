@@ -4,6 +4,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { PageMeta } from '@/components/seo/PageMeta';
+import elevatedWealthLogo from '@/assets/portfolio/ElevatedWealthLogo.png';
+import elevatedHealthLogo from '@/assets/portfolio/ElevatedHealthLogo.png';
 
 interface PortfolioProject {
   id: string;
@@ -15,11 +17,50 @@ interface PortfolioProject {
   categories: string[];
   image_url: string | null;
   external_link: string | null;
+  cta_label: string | null;
   display_order: number;
 }
 
 const categories = ['All', 'Branding', 'Website', 'UI/UX', 'Product'];
 const mockProjects: PortfolioProject[] = [
+  {
+    id: 'elevated-wealth',
+    title: 'Elevated Wealth',
+    description:
+      'AI-assisted personal finance PWA for budgeting, transactions, and planning.',
+    problem: null,
+    solution: null,
+    outcomes: [
+      'Mobile-first dashboard + budget UI',
+      'Bottom navigation with contextual “+” action drawer',
+      'Supabase backend with authentication',
+      'PWA-ready install experience',
+    ],
+    categories: ['UI/UX', 'Product', 'PWA', 'Finance', 'Supabase', 'Auth', 'AI Tools'],
+    image_url: elevatedWealthLogo,
+    external_link: 'https://wealth.elevated-apps.com',
+    cta_label: 'View Live',
+    display_order: 1,
+  },
+  {
+    id: 'elevated-health',
+    title: 'Elevated Health',
+    description:
+      'AI-assisted wellness PWA for calorie and macro tracking with coach-style guidance.',
+    problem: null,
+    solution: null,
+    outcomes: [
+      'Clean meal and workout logging flows',
+      'Dashboard widgets and weekly planning UI',
+      'Mobile-first layout with PWA install support',
+      'Privacy-first direction for AI features',
+    ],
+    categories: ['UI/UX', 'Product', 'PWA', 'Health', 'Nutrition', 'AI Coach'],
+    image_url: elevatedHealthLogo,
+    external_link: 'https://health.elevated-apps.com',
+    cta_label: 'View Live',
+    display_order: 2,
+  },
   {
     id: 'true-west-handyman',
     title: 'True West Handyman',
@@ -37,7 +78,8 @@ const mockProjects: PortfolioProject[] = [
     categories: ['Website', 'Branding'],
     image_url: '/portfolio/True-West-Handyman.png',
     external_link: 'https://truewesthandyman.com',
-    display_order: 1,
+    cta_label: 'View Project',
+    display_order: 3,
   },
   {
     id: 'paws-whiskers-care',
@@ -56,7 +98,8 @@ const mockProjects: PortfolioProject[] = [
     categories: ['Website', 'Branding'],
     image_url: '/portfolio/paws-whiskers-care.png',
     external_link:'https://pawsandwhiskerscare.netlify.app/',
-    display_order: 2,
+    cta_label: 'View Project',
+    display_order: 4,
   },
   {
     id: 'rose-noir',
@@ -71,7 +114,8 @@ const mockProjects: PortfolioProject[] = [
     categories: ['Website', 'Branding'],
     image_url: '/portfolio/rose-noir.png',
     external_link: null,
-    display_order: 3,
+    cta_label: null,
+    display_order: 5,
   },
 ];
 
@@ -194,7 +238,7 @@ const Portfolio = () => {
                         onClick={(event) => event.stopPropagation()}
                         className="inline-flex items-center justify-center rounded-lg bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground transition-colors hover:bg-primary/90 sm:text-sm"
                       >
-                        View Project
+                        {project.cta_label || 'View Project'}
                       </a>
                     )}
                   </div>
